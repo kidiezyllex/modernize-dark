@@ -1,69 +1,63 @@
-'use client';
+"use client"
 
-import * as React from 'react';
-import createCache from '@emotion/cache';
-import { useServerInsertedHTML } from 'next/navigation';
-import { CacheProvider as DefaultCacheProvider } from '@emotion/react';
-import type { EmotionCache, Options as OptionsOfCreateCache } from '@emotion/cache';
+import * as React from "react"
+import createCache from "@emotion/cache"
+import { useServerInsertedHTML } from "next/navigation"
+import { CacheProvider as DefaultCacheProvider } from "@emotion/react"
+import type { EmotionCache, Options as OptionsOfCreateCache } from "@emotion/cache"
 
 export type NextAppDirEmotionCacheProviderProps = {
-  /** This is the options passed to createCache() from 'import createCache from "@emotion/cache"' */
-  options: Omit<OptionsOfCreateCache, 'insertionPoint'>;
-  /** By default <CacheProvider /> from 'import { CacheProvider } from "@emotion/react"' */
+  options: Omit<OptionsOfCreateCache, "insertionPoint">
   CacheProvider?: (props: {
-    value: EmotionCache;
-    children: React.ReactNode;
-  }) => React.JSX.Element | null;
-  children: React.ReactNode;
-};
+    value: EmotionCache
+    children: React.ReactNode
+  }) => React.JSX.Element | null
+  children: React.ReactNode
+}
 
-// This implementation is taken from https://github.com/garronej/tss-react/blob/main/src/next/appDir.tsx
 export function NextAppDirEmotionCacheProvider(props: NextAppDirEmotionCacheProviderProps) {
-  const { options, CacheProvider = DefaultCacheProvider, children } = props;
+  const { options, CacheProvider = DefaultCacheProvider, children } = props
 
   const [{ cache, flush }] = React.useState(() => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    const cache = createCache(options);
-    cache.compat = true;
-    const prevInsert = cache.insert;
-    let inserted: string[] = [];
-    cache.insert = (...args) => {
-      const serialized = args[1];
-      if (cache.inserted[serialized.name] === undefined) {
-        inserted.push(serialized.name);
+    const emotionCache = createCache(options)
+    emotionCache.compat = true
+    const prevInsert = emotionCache.insert
+    let inserted: string[] = []
+    emotionCache.insert = (...args) => {
+      const serialized = args[1]
+      if (emotionCache.inserted[serialized.name] === undefined) {
+        inserted.push(serialized.name)
       }
-      return prevInsert(...args);
-    };
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    const flush = () => {
-      const prevInserted = inserted;
-      inserted = [];
-      return prevInserted;
-    };
-    return { cache, flush };
-  });
+      return prevInsert(...args)
+    }
+    const flushEmotion = () => {
+      const prevInserted = inserted
+      inserted = []
+      return prevInserted
+    }
+    return { cache: emotionCache, flush: flushEmotion }
+  })
 
   useServerInsertedHTML(() => {
-    const names = flush();
+    const names = flush()
     if (names.length === 0) {
-      return null;
+      return null
     }
-    let styles = '';
-    // eslint-disable-next-line no-restricted-syntax
+    let styles = ""
     for (const name of names) {
-      styles += cache.inserted[name];
+      styles += cache.inserted[name]
     }
     return (
       <style
         key={cache.key}
-        data-emotion={`${cache.key} ${names.join(' ')}`}
-        // eslint-disable-next-line react/no-danger
+        data-emotion={`${cache.key} ${names.join(" ")}`}
         dangerouslySetInnerHTML={{
           __html: styles,
         }}
       />
-    );
-  });
+    )
+  })
 
-  return <CacheProvider value={cache}>{children}</CacheProvider>;
+  return <CacheProvider value={cache}>{children}</CacheProvider>
 }
+
