@@ -1,39 +1,44 @@
 "use client"
 
-import { useState } from "react";
-import { Button, Box, Drawer, useMediaQuery, Theme } from "@mui/material";
-import Breadcrumb from '@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb';
-import EmailList from '@/app/(DashboardLayout)/components/apps/email/EmailList';
-import EmailFilter from '@/app/(DashboardLayout)/components/apps/email/EmailFilter';
-import EmailSearch from '@/app/(DashboardLayout)/components/apps/email/EmailSearch';
-import EmailContent from '@/app/(DashboardLayout)/components/apps/email/EmailContent';
-import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
-import AppCard from '@/app/(DashboardLayout)/components/shared/AppCard';
-import Image from "next/image";
+import { useState, useEffect } from "react"
+import { Button, Box, Drawer } from "@mui/material"
+import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb"
+import EmailList from "@/app/(DashboardLayout)/components/apps/email/EmailList"
+import EmailFilter from "@/app/(DashboardLayout)/components/apps/email/EmailFilter"
+import EmailSearch from "@/app/(DashboardLayout)/components/apps/email/EmailSearch"
+import EmailContent from "@/app/(DashboardLayout)/components/apps/email/EmailContent"
+import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer"
+import AppCard from "@/app/(DashboardLayout)/components/shared/AppCard"
+import Image from "next/image"
 
-const drawerWidth = 240;
-const secdrawerWidth = 340;
+const drawerWidth = 240
+const secdrawerWidth = 340
 
 const Email = () => {
-  const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(false);
-  const [isRightSidebarOpen, setRightSidebarOpen] = useState(false);
-  const lgUp = useMediaQuery((theme: Theme) => theme.breakpoints.up("lg"));
-  const mdUp = useMediaQuery((theme: Theme) => theme.breakpoints.up("md"));
+  const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(false)
+  const [isRightSidebarOpen, setRightSidebarOpen] = useState(false)
+  const [isLgUp, setIsLgUp] = useState(false)
+  const [isMdUp, setIsMdUp] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLgUp(window.innerWidth >= 1200) // Adjust this breakpoint as needed
+      setIsMdUp(window.innerWidth >= 900) // Adjust this breakpoint as needed
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   return (
     <PageContainer title="Email" description="this is Email">
       <Breadcrumb title="Email app" subtitle="Look at Inbox">
-        <Image
-          src="/images/breadcrumb/emailSv.png"
-          alt={"emailIcon"} width={195} height={195}
-        />
+        <Image src="/images/breadcrumb/emailSv.png" alt={"emailIcon"} width={195} height={195} />
       </Breadcrumb>
 
       <AppCard>
-        {/* ------------------------------------------- */}
         {/* Left part */}
-        {/* ------------------------------------------- */}
-
         <Drawer
           open={isLeftSidebarOpen}
           onClose={() => setLeftSidebarOpen(false)}
@@ -46,15 +51,12 @@ const Email = () => {
             },
             flexShrink: 0,
           }}
-          variant={lgUp ? "permanent" : "temporary"}
+          variant={isLgUp ? "permanent" : "temporary"}
         >
           <EmailFilter />
         </Drawer>
 
-        {/* ------------------------------------------- */}
         {/* Middle part */}
-        {/* ------------------------------------------- */}
-
         <Box
           sx={{
             minWidth: secdrawerWidth,
@@ -63,15 +65,11 @@ const Email = () => {
           }}
         >
           <EmailSearch onClick={() => setLeftSidebarOpen(true)} />
-
           <EmailList showrightSidebar={() => setRightSidebarOpen(true)} />
         </Box>
 
-        {/* ------------------------------------------- */}
         {/* Right part */}
-        {/* ------------------------------------------- */}
-
-        {mdUp ? (
+        {isMdUp ? (
           <Drawer
             anchor="right"
             variant="permanent"
@@ -106,8 +104,7 @@ const Email = () => {
                 onClick={() => setRightSidebarOpen(false)}
                 sx={{ mb: 3, display: { xs: "block", md: "none", lg: "none" } }}
               >
-                {" "}
-                Back{" "}
+                Back
               </Button>
               <EmailContent />
             </Box>
@@ -115,7 +112,8 @@ const Email = () => {
         )}
       </AppCard>
     </PageContainer>
-  );
-};
+  )
+}
 
-export default Email;
+export default Email
+

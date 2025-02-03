@@ -9,7 +9,23 @@ const nextConfig = {
     //   transform: '@mui/material/{{member}}',
     // },
   },
-  
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.optimization.splitChunks.cacheGroups = {
+        ...config.optimization.splitChunks.cacheGroups,
+        "@mui": {
+          test: /[\\/]node_modules[\\/](@mui)[\\/]/,
+          name: "@mui",
+          priority: 10,
+          reuseExistingChunk: true,
+        },
+      };
+    }
+    return config;
+  },
+  experimental: {
+    optimizeCss: true,
+  },
 };
 
 module.exports = nextConfig;

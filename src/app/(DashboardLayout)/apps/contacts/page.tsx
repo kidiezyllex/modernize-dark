@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react';
-import { Button, Box, Drawer, useMediaQuery, Theme } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Button, Box, Drawer, Theme } from '@mui/material';
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
 import Breadcrumb from '@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb';
 import ContactDetails from '@/app/(DashboardLayout)/components/apps/contacts/ContactDetails';
@@ -16,17 +16,25 @@ const secdrawerWidth = 320;
 const Contacts = () => {
   const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setRightSidebarOpen] = useState(false);
-  const lgUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
-  const mdUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+  const [isLgUp, setIsLgUp] = useState(false);
+  const [isMdUp, setIsMdUp] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLgUp(window.innerWidth >= 1200); // Adjust this breakpoint as needed
+      setIsMdUp(window.innerWidth >= 900); // Adjust this breakpoint as needed
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <PageContainer title="Contact" description="this is Contact">
       <Breadcrumb title="Contact app" subtitle="List Your Contacts" />
       <AppCard>
-        {/* ------------------------------------------- */}
         {/* Left Part */}
-        {/* ------------------------------------------- */}
-
         <Drawer
           open={isLeftSidebarOpen}
           onClose={() => setLeftSidebarOpen(false)}
@@ -35,13 +43,12 @@ const Contacts = () => {
             [`& .MuiDrawer-paper`]: { width: drawerWidth, position: 'relative', zIndex: 2 },
             flexShrink: 0,
           }}
-          variant={lgUp ? 'permanent' : 'temporary'}
+          variant={isLgUp ? 'permanent' : 'temporary'}
         >
           <ContactFilter />
         </Drawer>
-        {/* ------------------------------------------- */}
+
         {/* Middle part */}
-        {/* ------------------------------------------- */}
         <Box
           sx={{
             minWidth: secdrawerWidth,
@@ -52,25 +59,22 @@ const Contacts = () => {
           <ContactSearch onClick={() => setLeftSidebarOpen(true)} />
           <ContactList showrightSidebar={() => setRightSidebarOpen(true)} />
         </Box>
-        {/* ------------------------------------------- */}
+
         {/* Right part */}
-        {/* ------------------------------------------- */}
         <Drawer
           anchor="right"
           open={isRightSidebarOpen}
           onClose={() => setRightSidebarOpen(false)}
-          variant={mdUp ? 'permanent' : 'temporary'}
+          variant={isMdUp ? 'permanent' : 'temporary'}
           sx={{
-            width: mdUp ? secdrawerWidth : '100%',
-            zIndex: lgUp ? 0 : 1,
-            flex: mdUp ? 'auto' : '',
+            width: isMdUp ? secdrawerWidth : '100%',
+            zIndex: isLgUp ? 0 : 1,
+            flex: isMdUp ? 'auto' : '',
             [`& .MuiDrawer-paper`]: { width: '100%', position: 'relative' },
           }}
         >
           {/* back btn Part */}
-          {mdUp ? (
-            ''
-          ) : (
+          {!isMdUp && (
             <Box sx={{ p: 3 }}>
               <Button
                 variant="outlined"
@@ -79,7 +83,7 @@ const Contacts = () => {
                 onClick={() => setRightSidebarOpen(false)}
                 sx={{ mb: 3, display: { xs: 'block', md: 'none', lg: 'none' } }}
               >
-                Back{' '}
+                Back
               </Button>
             </Box>
           )}
