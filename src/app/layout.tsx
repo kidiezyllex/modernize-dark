@@ -31,13 +31,13 @@ export const MyApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <NextTopLoader color="#5D87FF" />
       <NextAppDirEmotionCacheProvider options={{ key: 'modernize' }}>
-      <ThemeProvider theme={theme}>
-        <RTL direction={customizer.activeDir}>
-          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-          <CssBaseline />
-          {children}
-        </RTL>
-      </ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <RTL direction={customizer.activeDir}>
+            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+            <CssBaseline />
+            {children}
+          </RTL>
+        </ThemeProvider>
       </NextAppDirEmotionCacheProvider>
     </>
   );
@@ -48,30 +48,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [loading, setLoading] = React.useState(false);
-  React.useEffect(() => {
-    setTimeout(() => setLoading(true), 3000);
-  }, []);
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <Provider store={store}>
-          {loading ? (
-            // eslint-disable-next-line react/no-children-prop
-            <MyApp children={children} />
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-                height: "100vh",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          )}
+          <MyApp children={children} />
         </Provider>
       </body>
     </html>
